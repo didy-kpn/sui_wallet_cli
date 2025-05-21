@@ -1,7 +1,7 @@
 use crate::{
     commands::{
-        balance::Balance, cipher::Cipher, create::Create, edit::Edit, faucet::Faucet,
-        import::Import, list::List, rpc::Rpc, tag::Tag, Command,
+        balance::Balance, cipher::Cipher, create::Create, edit::Edit, export::Export,
+        faucet::Faucet, import::Import, list::List, rpc::Rpc, tag::Tag, Command,
     },
     error::Error,
     models::wallet_confy::WalletConfy,
@@ -27,6 +27,7 @@ enum Commands {
     Balance(Balance),
     Create(Create),
     Edit(Edit),
+    Export(Export),
     Faucet(Faucet),
     Import(Import),
     List(List),
@@ -65,6 +66,7 @@ impl Cli {
             }
             Commands::Rpc(rpc) => rpc.execute(rpc_service, wallet_repository),
             Commands::Tag(tag) => tag.execute(tag_service, wallet_repository),
+            Commands::Export(export) => export.execute(wallet_service, wallet_repository),
         }
     }
 }

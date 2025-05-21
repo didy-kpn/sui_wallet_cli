@@ -28,6 +28,14 @@ impl WalletCredentials {
         let private_key = cipher.decrypt(hex::decode(&self.encrypted_private_key)?)?;
         Ok(SuiKeyPair::from_bytes(&private_key)?)
     }
+
+    pub fn get_phrase(&self) -> String {
+        let cipher = Cipher::load_from_env().unwrap(); // Assuming in test/controlled env or handle error
+        let phrase_bytes = cipher
+            .decrypt(hex::decode(&self.encrypted_mnemonic).unwrap())
+            .unwrap();
+        String::from_utf8(phrase_bytes).unwrap()
+    }
 }
 
 #[cfg(test)]

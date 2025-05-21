@@ -59,6 +59,10 @@ pub struct ListWallet {
     pub json: bool,
 }
 
+pub struct ExportWallet {
+    pub alias_or_address: AliasOrAddress,
+}
+
 impl WalletServiceImpl {
     pub fn new() -> Self {
         Self
@@ -200,5 +204,35 @@ impl<R: WalletRepository<WalletConfy>> WalletService<R> for WalletServiceImpl {
         }
 
         Ok(())
+    }
+
+    fn export(&self, export_wallet: ExportWallet, repository: R) -> Result<()> {
+        let confy = repository.load()?;
+
+        let wallet = match export_wallet.alias_or_address {
+            AliasOrAddress::Address(address) => confy
+                .get_wallets()
+                .get_by_key(&address)
+                .ok_or(Error::WalletAddressNotFound(address))?,
+            AliasOrAddress::Alias(alias) => {
+                let address = confy
+                    .get_wallets()
+                    .get_address_by_alias(&alias)
+                    .ok_or(Error::WalletAliasNotFound(alias))?;
+
+                confy
+                    .get_wallets()
+                    .get_by_key(address)
+                    .ok_or(Error::WalletAddressNotFound(*address))?
+            }
+        }
+        .clone();
+
+        if let Some(phrase) = wallet.get_phrase() {
+            println!("{}", phrase);
+            Ok(())
+        } else {
+            Err(Error::MnemonicNotFoundError)
+        }
     }
 }

@@ -4,7 +4,7 @@ use crate::{
         rpc_service::{CreateRpc, ListRpc, RemoveRpc},
         tag_service::{CreateTags, ListTags, RemoveTags},
         transaction_service::{GetAllBalance, RequestFaucet},
-        wallet_service::{CreateWallet, EditWallet, ImportWallet, ListWallet},
+        wallet_service::{CreateWallet, EditWallet, ExportWallet, ImportWallet, ListWallet},
     },
 };
 
@@ -12,6 +12,7 @@ pub mod balance;
 pub mod cipher;
 pub mod create;
 pub mod edit;
+pub mod export;
 pub mod faucet;
 pub mod import;
 pub mod list;
@@ -27,6 +28,7 @@ pub trait WalletService<R> {
     fn import(&self, import_wallet: ImportWallet, repository: R) -> Result<()>;
     fn edit(&self, edit_wallet: EditWallet, repository: R) -> Result<()>;
     fn list(&self, list_wallet: ListWallet, repository: R) -> Result<()>;
+    fn export(&self, export_wallet: ExportWallet, repository: R) -> Result<()>;
 }
 
 pub trait TagService<R> {
