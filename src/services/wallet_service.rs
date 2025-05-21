@@ -207,27 +207,32 @@ impl<R: WalletRepository<WalletConfy>> WalletService<R> for WalletServiceImpl {
     }
 
     fn export(&self, export_wallet: ExportWallet, repository: R) -> Result<()> {
-        let wallet_confy = repository.load()?;
-        let wallets = wallet_confy.get_wallets(); // Assuming get_wallets() returns a reference to WalletList or similar
+        let confy = repository.load()?;
 
-        let wallet_to_export = match export_wallet.alias_or_address {
-            AliasOrAddress::Address(address) => wallets.get_wallet_by_address(&address),
-            AliasOrAddress::Alias(alias) => wallets.get_wallet_by_alias(&alias),
-        };
+        let wallet = match export_wallet.alias_or_address {
+            AliasOrAddress::Address(address) => confy
+                .get_wallets()
+                .get_by_key(&address)
+                .ok_or(Error::WalletAddressNotFound(address))?,
+            AliasOrAddress::Alias(alias) => {
+                let address = confy
+                    .get_wallets()
+                    .get_address_by_alias(&alias)
+                    .ok_or(Error::WalletAliasNotFound(alias))?;
 
-        match wallet_to_export {
-            Some(wallet) => {
-                if let Some(phrase) = wallet.get_phrase() { // Assuming Wallet has a get_phrase() method that returns Option<&String>
-                    println!("{}", phrase);
-                    Ok(())
-                } else {
-                    Err(Error::MnemonicNotFoundError) // Need to define this error variant
-                }
+                confy
+                    .get_wallets()
+                    .get_by_key(address)
+                    .ok_or(Error::WalletAddressNotFound(*address))?
             }
-            None => match export_wallet.alias_or_address {
-                AliasOrAddress::Address(addr) => Err(Error::WalletAddressNotFound(addr)), // Assuming this error variant exists
-                AliasOrAddress::Alias(alias) => Err(Error::WalletAliasNotFound(alias)), // Assuming this error variant exists
-            },
+        }
+        .clone();
+
+        if let Some(phrase) = wallet.get_phrase() {
+            println!("{}", phrase);
+            Ok(())
+        } else {
+            Err(Error::MnemonicNotFoundError)
         }
     }
 }

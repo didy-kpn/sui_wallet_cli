@@ -4,7 +4,7 @@ use crate::{
         rpc_service::{CreateRpc, ListRpc, RemoveRpc},
         tag_service::{CreateTags, ListTags, RemoveTags},
         transaction_service::{GetAllBalance, RequestFaucet},
-        wallet_service::{CreateWallet, EditWallet, ImportWallet, ListWallet},
+        wallet_service::{CreateWallet, EditWallet, ExportWallet, ImportWallet, ListWallet},
     },
 };
 
@@ -12,8 +12,8 @@ pub mod balance;
 pub mod cipher;
 pub mod create;
 pub mod edit;
-pub mod faucet;
 pub mod export;
+pub mod faucet;
 pub mod import;
 pub mod list;
 pub mod rpc;

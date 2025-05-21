@@ -27,7 +27,6 @@ enum Commands {
     Balance(Balance),
     Create(Create),
     Edit(Edit),
-    #[command(about = "Export a wallet's mnemonic phrase")]
     Export(Export),
     Faucet(Faucet),
     Import(Import),
