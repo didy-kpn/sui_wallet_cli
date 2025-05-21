@@ -65,6 +65,17 @@ impl Wallet {
             None
         }
     }
+
+    pub fn get_phrase(&self) -> Option<String> {
+        self.credentials
+            .as_ref()
+            .map(|creds| creds.get_phrase().clone())
+    }
+
+    #[cfg(test)]
+    pub fn set_credentials(&mut self, credentials: Option<WalletCredentials>) {
+        self.credentials = credentials;
+    }
 }
 
 #[cfg(test)]

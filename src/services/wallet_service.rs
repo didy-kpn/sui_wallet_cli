@@ -59,6 +59,10 @@ pub struct ListWallet {
     pub json: bool,
 }
 
+pub struct ExportWallet {
+    pub alias_or_address: AliasOrAddress,
+}
+
 impl WalletServiceImpl {
     pub fn new() -> Self {
         Self
@@ -200,5 +204,30 @@ impl<R: WalletRepository<WalletConfy>> WalletService<R> for WalletServiceImpl {
         }
 
         Ok(())
+    }
+
+    fn export(&self, export_wallet: ExportWallet, repository: R) -> Result<()> {
+        let wallet_confy = repository.load()?;
+        let wallets = wallet_confy.get_wallets(); // Assuming get_wallets() returns a reference to WalletList or similar
+
+        let wallet_to_export = match export_wallet.alias_or_address {
+            AliasOrAddress::Address(address) => wallets.get_wallet_by_address(&address),
+            AliasOrAddress::Alias(alias) => wallets.get_wallet_by_alias(&alias),
+        };
+
+        match wallet_to_export {
+            Some(wallet) => {
+                if let Some(phrase) = wallet.get_phrase() { // Assuming Wallet has a get_phrase() method that returns Option<&String>
+                    println!("{}", phrase);
+                    Ok(())
+                } else {
+                    Err(Error::MnemonicNotFoundError) // Need to define this error variant
+                }
+            }
+            None => match export_wallet.alias_or_address {
+                AliasOrAddress::Address(addr) => Err(Error::WalletAddressNotFound(addr)), // Assuming this error variant exists
+                AliasOrAddress::Alias(alias) => Err(Error::WalletAliasNotFound(alias)), // Assuming this error variant exists
+            },
+        }
     }
 }

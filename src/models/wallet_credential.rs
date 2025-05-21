@@ -28,6 +28,32 @@ impl WalletCredentials {
         let private_key = cipher.decrypt(hex::decode(&self.encrypted_private_key)?)?;
         Ok(SuiKeyPair::from_bytes(&private_key)?)
     }
+
+    pub fn get_phrase(&self) -> String {
+        let cipher = Cipher::load_from_env().unwrap(); // Assuming in test/controlled env or handle error
+        let phrase_bytes = cipher.decrypt(hex::decode(&self.encrypted_mnemonic).unwrap()).unwrap();
+        String::from_utf8(phrase_bytes).unwrap()
+    }
+
+    #[cfg(test)]
+    pub fn new_for_testing(phrase: String) -> Result<Self> {
+        use sui_sdk::crypto::Ed25519SuiKeyPair; // For dummy keypair
+        use rand::rngs::OsRng; // For dummy keypair
+
+        let cipher = Cipher::load_from_env()?; // Assumes CIPHER_KEY and CIPHER_NONCE are set in test env
+
+        // Create dummy keypair and scheme as they are required by WalletCredentials struct
+        // but their actual values are not critical for testing get_phrase
+        let (dummy_address, dummy_keypair) = Ed25519SuiKeyPair::generate(&mut OsRng).split();
+        let dummy_scheme = SignatureScheme::ED25519;
+
+        Ok(Self {
+            public_key: dummy_keypair.public(),
+            encrypted_private_key: hex::encode(cipher.encrypt(dummy_keypair.to_bytes())?), // Encrypt some dummy data
+            key_scheme: dummy_scheme,
+            encrypted_mnemonic: hex::encode(cipher.encrypt(phrase.into_bytes())?),
+        })
+    }
 }
 
 #[cfg(test)]

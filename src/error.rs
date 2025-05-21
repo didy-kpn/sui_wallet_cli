@@ -86,6 +86,9 @@ pub enum Error {
 
     #[error("Reqwest Error: {0}")]
     ReqwestError(#[from] reqwest::Error),
+
+    #[error("Mnemonic not found for this wallet. It might have been imported by address only.")]
+    MnemonicNotFoundError,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

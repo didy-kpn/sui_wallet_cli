@@ -13,6 +13,7 @@ pub mod cipher;
 pub mod create;
 pub mod edit;
 pub mod faucet;
+pub mod export;
 pub mod import;
 pub mod list;
 pub mod rpc;
@@ -27,6 +28,7 @@ pub trait WalletService<R> {
     fn import(&self, import_wallet: ImportWallet, repository: R) -> Result<()>;
     fn edit(&self, edit_wallet: EditWallet, repository: R) -> Result<()>;
     fn list(&self, list_wallet: ListWallet, repository: R) -> Result<()>;
+    fn export(&self, export_wallet: ExportWallet, repository: R) -> Result<()>;
 }
 
 pub trait TagService<R> {
