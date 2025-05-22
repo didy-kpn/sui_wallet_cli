@@ -161,6 +161,8 @@ impl<R: WalletRepository<WalletConfy>> WalletService<R> for WalletServiceImpl {
             ))?;
         }
 
+        repository.store(wallet_confy.clone())?;
+
         println!("Wallet import successfully");
 
         Ok(())
